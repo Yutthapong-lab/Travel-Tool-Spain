@@ -16,17 +16,17 @@
             --orb-2: #f472b6;
             --orb-3: #22d3ee;
             
-            --card-bg: rgba(255, 255, 255, 0.75);
-            --card-border: rgba(255, 255, 255, 0.6);
+            --card-bg: rgba(255, 255, 255, 0.85); /* Increased opacity slightly */
+            --card-border: rgba(255, 255, 255, 0.8);
             --text-main: #1e293b;
             --text-sub: #64748b;
-            --input-bg: rgba(255, 255, 255, 0.5);
+            --input-bg: rgba(255, 255, 255, 0.6);
             --input-focus: #ffffff;
             --primary: #4f46e5;
             --primary-glow: rgba(79, 70, 229, 0.3);
             --success: #10b981;
             --warning: #f59e0b;
-            --shadow-card: 0 20px 50px -12px rgba(0,0,0,0.1);
+            --shadow-card: 0 15px 35px -5px rgba(0,0,0,0.1);
             --shadow-input: inset 0 2px 4px rgba(0,0,0,0.03);
             --toggle-bg: #f1f5f9;
             --day-color: #f59e0b;
@@ -34,13 +34,13 @@
         }
 
         [data-theme="dark"] {
-            /* Dark Mode Palette (Neon/Deep) */
+            /* Dark Mode Animation (Deep Space) */
             --bg-base: #0f172a;
             --orb-1: #4338ca;
             --orb-2: #7c3aed;
             --orb-3: #0ea5e9;
 
-            --card-bg: rgba(15, 23, 42, 0.65);
+            --card-bg: rgba(15, 23, 42, 0.75);
             --card-border: rgba(255, 255, 255, 0.1);
             --text-main: #f8fafc;
             --text-sub: #94a3b8;
@@ -61,17 +61,16 @@
             font-family: 'Prompt', sans-serif;
             background-color: var(--bg-base);
             min-height: 100vh;
-            /* FIX: Changed from flex center to allow scrolling */
             display: flex;
             flex-direction: column;
             align-items: center;
-            justify-content: flex-start; /* Start from top */
-            padding: 40px 20px; /* Add vertical padding for scroll space */
+            justify-content: flex-start; /* Align top to allow scrolling */
             
-            /* FIX: Allow vertical scroll, hide horizontal */
+            /* FIX: Increase padding to prevent edge touching */
+            padding: 40px 16px; 
+            
             overflow-x: hidden; 
             overflow-y: auto; 
-            
             position: relative;
             transition: background-color 0.5s ease;
         }
@@ -88,212 +87,180 @@
         .orb {
             position: absolute;
             border-radius: 50%;
-            filter: blur(80px);
-            opacity: 0.6;
+            filter: blur(60px); /* Reduced blur slightly for performance */
+            opacity: 0.5;
             animation: float 10s infinite ease-in-out alternate;
         }
 
-        .orb-1 {
-            background: var(--orb-1);
-            width: 60vw; height: 60vw;
-            top: -10%; left: -10%;
-            animation-duration: 12s;
+        .orb-1 { background: var(--orb-1); width: 70vw; height: 70vw; top: -15%; left: -15%; animation-duration: 14s; }
+        .orb-2 { background: var(--orb-2); width: 60vw; height: 60vw; bottom: -15%; right: -15%; animation-duration: 16s; animation-direction: alternate-reverse; }
+        .orb-3 { background: var(--orb-3); width: 45vw; height: 45vw; top: 40%; left: 50%; transform: translate(-50%, -50%); animation-name: floatCenter; animation-duration: 20s; }
+
+        @keyframes float { 0% { transform: translate(0, 0) scale(1); } 100% { transform: translate(20px, 30px) scale(1.05); } }
+        @keyframes floatCenter { 
+            0% { transform: translate(-50%, -50%) scale(1) rotate(0deg); } 
+            50% { transform: translate(-50%, -60%) scale(1.1) rotate(20deg); } 
+            100% { transform: translate(-50%, -50%) scale(1) rotate(0deg); } 
         }
 
-        .orb-2 {
-            background: var(--orb-2);
-            width: 50vw; height: 50vw;
-            bottom: -10%; right: -10%;
-            animation-duration: 15s;
-            animation-direction: alternate-reverse;
-        }
-
-        .orb-3 {
-            background: var(--orb-3);
-            width: 40vw; height: 40vw;
-            top: 40%; left: 40%;
-            transform: translate(-50%, -50%);
-            animation-name: floatCenter;
-            animation-duration: 18s;
-        }
-
-        @keyframes float {
-            0% { transform: translate(0, 0) scale(1); }
-            100% { transform: translate(30px, 50px) scale(1.1); }
-        }
-
-        @keyframes floatCenter {
-            0% { transform: translate(-50%, -50%) scale(1) rotate(0deg); }
-            33% { transform: translate(-40%, -60%) scale(1.2) rotate(45deg); }
-            66% { transform: translate(-60%, -40%) scale(0.9) rotate(-45deg); }
-            100% { transform: translate(-50%, -50%) scale(1) rotate(0deg); }
-        }
-
-        /* --- CONTAINER --- */
+        /* --- CONTAINER (Optimized Size) --- */
         .container {
             background: var(--card-bg);
-            backdrop-filter: blur(30px);
-            -webkit-backdrop-filter: blur(30px);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
             border: 1px solid var(--card-border);
-            border-radius: 32px;
+            border-radius: 24px; /* Slightly smaller radius */
             padding: 25px 20px;
             width: 100%;
-            max-width: 380px; 
+            
+            /* FIX: Smaller max-width to fit all phones */
+            max-width: 350px; 
+            
             box-shadow: var(--shadow-card);
             position: relative;
             z-index: 10;
             transition: all 0.3s ease;
-            
-            /* FIX: Remove overflow hidden so content isn't clipped */
-            overflow: visible; 
             margin-bottom: 20px;
         }
 
         /* --- Header --- */
-        .header {
-            display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;
-        }
-        .app-title {
-            font-size: 1.3rem; font-weight: 700; color: var(--text-main);
-            display: flex; flex-direction: column; line-height: 1.1; letter-spacing: -0.5px;
-        }
-        .app-title span { font-size: 0.75rem; color: var(--text-sub); font-weight: 400; margin-top: 2px; letter-spacing: 0; }
+        .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; }
+        .app-title { font-size: 1.2rem; font-weight: 700; color: var(--text-main); display: flex; flex-direction: column; line-height: 1.1; }
+        .app-title span { font-size: 0.7rem; color: var(--text-sub); font-weight: 400; margin-top: 2px; }
         
         .theme-toggle {
             background: var(--toggle-bg); border-radius: 50px; padding: 3px;
             display: flex; align-items: center; cursor: pointer; position: relative;
-            width: 54px; height: 28px; transition: 0.3s;
+            width: 50px; height: 26px; transition: 0.3s; /* Smaller toggle */
         }
         .toggle-icon {
-            width: 22px; height: 22px; border-radius: 50%;
+            width: 20px; height: 20px; border-radius: 50%;
             background: #fff; box-shadow: 0 2px 4px rgba(0,0,0,0.2);
             display: flex; align-items: center; justify-content: center;
-            color: #f59e0b; font-size: 0.8rem;
+            color: #f59e0b; font-size: 0.7rem;
             position: absolute; left: 3px; transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
         }
-        [data-theme="dark"] .toggle-icon { transform: translateX(26px); color: #6366f1; background: #1e293b; }
+        [data-theme="dark"] .toggle-icon { transform: translateX(24px); color: #6366f1; background: #1e293b; }
         
         /* --- Dashboard --- */
-        .dashboard-container { margin-bottom: 20px; }
+        .dashboard-container { margin-bottom: 15px; }
         .dashboard { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
         
         .dash-card {
-            background: var(--input-bg); border-radius: 20px; padding: 12px 8px;
+            background: var(--input-bg); border-radius: 16px; padding: 10px 8px;
             text-align: center; border: 1px solid var(--card-border);
             transition: 0.3s; display: flex; flex-direction: column; align-items: center;
         }
-        .dash-card:hover { transform: translateY(-3px); border-color: var(--primary); box-shadow: 0 10px 20px -10px var(--primary-glow); }
-        
-        .dash-header { display: flex; align-items: center; gap: 6px; margin-bottom: 4px; opacity: 0.9; }
-        .dash-flag { width: 18px; height: 18px; border-radius: 50%; object-fit: cover; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
-        .dash-country { font-size: 0.8rem; font-weight: 600; color: var(--text-sub); }
+        .dash-header { display: flex; align-items: center; gap: 5px; margin-bottom: 2px; opacity: 0.9; }
+        .dash-flag { width: 16px; height: 16px; border-radius: 50%; object-fit: cover; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+        .dash-country { font-size: 0.75rem; font-weight: 600; color: var(--text-sub); }
 
-        .dash-time { font-size: 1.5rem; font-weight: 700; color: var(--text-main); line-height: 1; margin: 2px 0; font-variant-numeric: tabular-nums; letter-spacing: -0.5px; }
+        .dash-time { font-size: 1.3rem; font-weight: 700; color: var(--text-main); line-height: 1; margin: 2px 0; font-variant-numeric: tabular-nums; }
         
-        /* Time Difference Badge */
         .time-diff-badge {
-            font-size: 0.65rem; font-weight: 600; padding: 2px 8px; border-radius: 10px;
-            margin-bottom: 6px; display: inline-block; white-space: nowrap;
+            font-size: 0.6rem; font-weight: 600; padding: 2px 6px; border-radius: 8px;
+            margin-bottom: 4px; display: inline-block; white-space: nowrap;
         }
-        .diff-faster { color: var(--success); background: rgba(16, 185, 129, 0.15); }
-        .diff-slower { color: var(--warning); background: rgba(245, 158, 11, 0.15); }
+        .diff-faster { color: var(--success); background: rgba(16, 185, 129, 0.1); }
+        .diff-slower { color: var(--warning); background: rgba(245, 158, 11, 0.1); }
 
         .dash-info-group {
-            display: flex; flex-direction: row; justify-content: center; align-items: center; gap: 8px; width: 100%; border-top: 1px solid rgba(0,0,0,0.05); padding-top: 6px;
+            display: flex; flex-direction: row; justify-content: center; align-items: center; gap: 6px; width: 100%; 
+            border-top: 1px solid rgba(0,0,0,0.05); padding-top: 4px;
         }
         
-        .dn-status { font-size: 0.7rem; font-weight: 600; display: flex; align-items: center; gap: 3px; }
+        .dn-status { font-size: 0.65rem; font-weight: 600; display: flex; align-items: center; gap: 3px; }
         .dn-day { color: var(--day-color); }
         .dn-night { color: var(--night-color); }
 
-        .dash-weather-row { display: flex; align-items: center; gap: 3px; font-size: 0.75rem; color: var(--text-sub); }
-        .w-icon-small { width: 16px; height: 16px; vertical-align: middle; }
+        .dash-weather-row { display: flex; align-items: center; gap: 3px; font-size: 0.7rem; color: var(--text-sub); }
+        .w-icon-small { width: 14px; height: 14px; vertical-align: middle; }
 
         /* --- Tabs --- */
         .tabs {
-            display: flex; background: var(--toggle-bg); border-radius: 16px; padding: 4px; margin-bottom: 20px;
+            display: flex; background: var(--toggle-bg); border-radius: 14px; padding: 3px; margin-bottom: 15px;
         }
         .tab-btn {
-            flex: 1; border: none; background: transparent; padding: 10px;
+            flex: 1; border: none; background: transparent; padding: 8px;
             border-radius: 12px; font-family: 'Prompt'; font-weight: 600; color: var(--text-sub);
-            cursor: pointer; transition: 0.3s; font-size: 0.85rem;
+            cursor: pointer; transition: 0.3s; font-size: 0.8rem;
         }
-        .tab-btn.active { background: var(--card-bg); color: var(--primary); box-shadow: 0 4px 10px rgba(0,0,0,0.08); }
+        .tab-btn.active { background: var(--card-bg); color: var(--primary); box-shadow: 0 2px 8px rgba(0,0,0,0.05); }
         
-        .tab-content { display: none; animation: slideUp 0.4s cubic-bezier(0.16, 1, 0.3, 1); }
+        .tab-content { display: none; animation: slideUp 0.4s ease; }
         .tab-content.active { display: block; }
-        @keyframes slideUp { from { opacity: 0; transform: translateY(15px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes slideUp { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 
         /* --- Inputs --- */
-        .input-wrapper { margin-bottom: 15px; position: relative; }
-        .input-label { font-size: 0.85rem; color: var(--text-sub); margin-bottom: 6px; margin-left: 8px; display: block; font-weight: 500; }
+        .input-wrapper { margin-bottom: 12px; position: relative; }
+        .input-label { font-size: 0.8rem; color: var(--text-sub); margin-bottom: 5px; margin-left: 8px; display: block; font-weight: 500; }
         .input-box {
             display: flex; align-items: center; background: var(--input-bg);
-            border-radius: 18px; padding: 6px 15px; border: 2px solid transparent;
+            border-radius: 16px; padding: 5px 12px; border: 2px solid transparent;
             box-shadow: var(--shadow-input); transition: 0.3s;
         }
         .input-box:focus-within {
             background: var(--input-focus); border-color: var(--primary);
-            box-shadow: 0 0 0 4px var(--primary-glow);
+            box-shadow: 0 0 0 3px var(--primary-glow);
         }
         input {
             width: 100%; border: none; background: transparent;
-            font-size: 1.6rem; font-weight: 600; color: var(--text-main);
-            padding: 10px 0; outline: none; font-family: 'Prompt'; letter-spacing: -0.5px;
+            font-size: 1.4rem; font-weight: 600; color: var(--text-main);
+            padding: 8px 0; outline: none; font-family: 'Prompt'; letter-spacing: -0.5px;
         }
         input::placeholder { 
             color: var(--text-sub); opacity: 0.5; font-weight: 400;
-            font-size: 1.1rem; transform: translateY(-1px);
+            font-size: 1rem; transform: translateY(-1px);
         }
         .currency-tag {
-            display: flex; align-items: center; gap: 6px; font-weight: 700;
-            color: var(--text-main); font-size: 0.9rem; padding-left: 10px;
+            display: flex; align-items: center; gap: 5px; font-weight: 700;
+            color: var(--text-main); font-size: 0.85rem; padding-left: 8px;
             border-left: 2px solid var(--card-border); opacity: 0.9;
         }
 
         /* --- Swap Button --- */
-        .swap-area { position: relative; height: 16px; display: flex; justify-content: center; z-index: 10; margin: -8px 0 15px; }
+        .swap-area { position: relative; height: 14px; display: flex; justify-content: center; z-index: 10; margin: -6px 0 12px; }
         .swap-btn {
-            width: 42px; height: 42px; border-radius: 50%; background: var(--primary);
+            width: 38px; height: 38px; border-radius: 50%; background: var(--primary);
             border: 4px solid var(--card-bg); color: white; display: flex; align-items: center; justify-content: center;
-            cursor: pointer; box-shadow: 0 6px 15px var(--primary-glow); transition: 0.3s; font-size: 1rem;
+            cursor: pointer; box-shadow: 0 4px 12px var(--primary-glow); transition: 0.3s; font-size: 0.9rem;
         }
         .swap-btn:active { transform: scale(0.9); }
         .swap-btn:hover { transform: rotate(180deg) scale(1.05); }
 
         /* --- Discount UI --- */
-        .disc-tools { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin: 20px 0; }
+        .disc-tools { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; margin: 15px 0; }
         .disc-btn {
             background: var(--input-bg); border: 1px solid var(--card-border); color: var(--text-sub);
-            padding: 8px; border-radius: 12px; font-family: 'Prompt'; font-weight: 600; cursor: pointer; transition: 0.2s; font-size: 0.8rem;
+            padding: 8px 4px; border-radius: 10px; font-family: 'Prompt'; font-weight: 600; cursor: pointer; transition: 0.2s; font-size: 0.75rem;
         }
         .disc-btn:hover { background: var(--primary); color: white; border-color: var(--primary); }
         .disc-btn.active { background: var(--primary); color: white; border-color: var(--primary); box-shadow: 0 4px 12px var(--primary-glow); }
-        .disc-manual { grid-column: span 4; display: flex; align-items: center; gap: 10px; margin-top: 4px; }
-        .disc-manual input { font-size: 1.1rem; padding: 10px; text-align: center; border-radius: 14px; background: var(--input-bg); border: 1px solid var(--card-border); }
+        .disc-manual { grid-column: span 4; display: flex; align-items: center; gap: 8px; margin-top: 4px; }
+        .disc-manual input { font-size: 1rem; padding: 8px; text-align: center; border-radius: 12px; background: var(--input-bg); border: 1px solid var(--card-border); }
 
         .result-card {
             background: linear-gradient(135deg, var(--success), #059669);
-            border-radius: 24px; padding: 20px; color: white; text-align: center;
-            box-shadow: 0 10px 30px -5px rgba(16, 185, 129, 0.4); margin-top: 15px;
+            border-radius: 20px; padding: 15px; color: white; text-align: center;
+            box-shadow: 0 8px 25px -5px rgba(16, 185, 129, 0.4); margin-top: 10px;
         }
-        .res-label { font-size: 0.85rem; opacity: 0.95; margin-bottom: 5px; font-weight: 500; }
-        .res-big { font-size: 2.2rem; font-weight: 700; line-height: 1; letter-spacing: -1px; margin-bottom: 4px;}
-        .res-small { font-size: 0.9rem; opacity: 0.9; margin-top: 6px; background: rgba(255,255,255,0.25); display: inline-block; padding: 4px 12px; border-radius: 20px; font-weight: 500; }
+        .res-label { font-size: 0.75rem; opacity: 0.95; margin-bottom: 4px; font-weight: 500; }
+        .res-big { font-size: 1.8rem; font-weight: 700; line-height: 1; letter-spacing: -0.5px; margin-bottom: 4px;}
+        .res-small { font-size: 0.8rem; opacity: 0.9; margin-top: 4px; background: rgba(255,255,255,0.2); display: inline-block; padding: 3px 10px; border-radius: 16px; font-weight: 500; }
 
-        .footer { margin-top: 25px; text-align: center; border-top: 1px solid var(--card-border); padding-top: 15px; }
-        .live-status { font-size: 0.75rem; color: var(--success); font-weight: 600; display: flex; align-items: center; justify-content: center; gap: 6px; margin-bottom: 6px; }
+        .footer { margin-top: 20px; text-align: center; border-top: 1px solid var(--card-border); padding-top: 15px; }
+        .live-status { font-size: 0.7rem; color: var(--success); font-weight: 600; display: flex; align-items: center; justify-content: center; gap: 5px; margin-bottom: 5px; }
         .live-dot { width: 6px; height: 6px; background: var(--success); border-radius: 50%; animation: pulse 1.5s infinite; }
-        .rate-text { font-size: 0.75rem; color: var(--text-sub); }
+        .rate-text { font-size: 0.7rem; color: var(--text-sub); }
         
         .reset-link {
-            display: inline-flex; align-items: center; gap: 6px; margin-top: 12px;
-            color: var(--text-sub); text-decoration: none; font-size: 0.85rem; font-weight: 600;
-            cursor: pointer; padding: 8px 18px; border-radius: 20px; transition: 0.2s;
+            display: inline-flex; align-items: center; gap: 5px; margin-top: 10px;
+            color: var(--text-sub); text-decoration: none; font-size: 0.8rem; font-weight: 600;
+            cursor: pointer; padding: 6px 16px; border-radius: 20px; transition: 0.2s;
         }
         .reset-link:hover { background: var(--toggle-bg); color: var(--text-main); }
 
-        .footer-credit { margin-top: 20px; font-size: 0.7rem; color: var(--text-sub); opacity: 0.6; line-height: 1.5; }
+        .footer-credit { margin-top: 15px; font-size: 0.65rem; color: var(--text-sub); opacity: 0.6; line-height: 1.4; }
         .footer-credit strong { font-weight: 600; }
 
         @keyframes pulse { 0% { opacity: 1; } 50% { opacity: 0.4; } 100% { opacity: 1; } }
@@ -392,7 +359,7 @@
                 <label class="input-label">ราคาป้าย (เลือกสกุลเงินได้)</label>
                 <div class="input-box" style="padding-right: 5px;">
                     <input type="number" id="disc-price" placeholder="ระบุราคา">
-                    <select id="disc-currency-select" style="border:none; background:var(--toggle-bg); padding:8px; border-radius:12px; font-family:'Prompt'; font-weight:600; color:var(--text-main); font-size:0.9rem; outline:none;">
+                    <select id="disc-currency-select" style="border:none; background:var(--toggle-bg); padding:8px; border-radius:12px; font-family:'Prompt'; font-weight:600; color:var(--text-main); font-size:0.85rem; outline:none;">
                         <option value="EUR">EUR</option>
                         <option value="THB">THB</option>
                     </select>
@@ -405,14 +372,14 @@
                 <button class="disc-btn" data-val="30">30%</button>
                 <button class="disc-btn" data-val="50">50%</button>
                 <div class="disc-manual">
-                    <span style="font-size:0.85rem; color:var(--text-sub); white-space:nowrap;">หรือกรอก %:</span>
+                    <span style="font-size:0.75rem; color:var(--text-sub); white-space:nowrap;">หรือกรอก %:</span>
                     <input type="number" id="disc-percent-manual" placeholder="0" style="width:100%;">
                 </div>
             </div>
 
             <div class="result-card">
                 <div class="res-label">ต้องจ่ายจริง (Net Price)</div>
-                <div class="res-big"><span id="res-final">0.00</span> <span id="res-unit" style="font-size:1.1rem">EUR</span></div>
+                <div class="res-big"><span id="res-final">0.00</span> <span id="res-unit" style="font-size:1rem">EUR</span></div>
                 <div class="res-small">≈ <span id="res-converted">0.00</span> <span id="res-conv-unit">THB</span></div>
             </div>
         </div>
