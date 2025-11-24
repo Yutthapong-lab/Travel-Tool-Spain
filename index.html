@@ -16,7 +16,7 @@
             --orb-2: #f472b6;
             --orb-3: #22d3ee;
             
-            --card-bg: rgba(255, 255, 255, 0.85); /* Increased opacity slightly */
+            --card-bg: rgba(255, 255, 255, 0.85);
             --card-border: rgba(255, 255, 255, 0.8);
             --text-main: #1e293b;
             --text-sub: #64748b;
@@ -31,6 +31,8 @@
             --toggle-bg: #f1f5f9;
             --day-color: #f59e0b;
             --night-color: #6366f1;
+            --popup-overlay: rgba(248, 250, 252, 0.8);
+            --switch-off: #cbd5e1;
         }
 
         [data-theme="dark"] {
@@ -53,6 +55,8 @@
             --shadow-card: 0 20px 50px -12px rgba(0,0,0,0.6);
             --shadow-input: inset 0 2px 4px rgba(0,0,0,0.3);
             --toggle-bg: #334155;
+            --popup-overlay: rgba(15, 23, 42, 0.85);
+            --switch-off: #475569;
         }
 
         * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
@@ -64,11 +68,8 @@
             display: flex;
             flex-direction: column;
             align-items: center;
-            justify-content: flex-start; /* Align top to allow scrolling */
-            
-            /* FIX: Increase padding to prevent edge touching */
+            justify-content: flex-start;
             padding: 40px 16px; 
-            
             overflow-x: hidden; 
             overflow-y: auto; 
             position: relative;
@@ -87,7 +88,7 @@
         .orb {
             position: absolute;
             border-radius: 50%;
-            filter: blur(60px); /* Reduced blur slightly for performance */
+            filter: blur(60px);
             opacity: 0.5;
             animation: float 10s infinite ease-in-out alternate;
         }
@@ -103,19 +104,16 @@
             100% { transform: translate(-50%, -50%) scale(1) rotate(0deg); } 
         }
 
-        /* --- CONTAINER (Optimized Size) --- */
+        /* --- CONTAINER --- */
         .container {
             background: var(--card-bg);
             backdrop-filter: blur(20px);
             -webkit-backdrop-filter: blur(20px);
             border: 1px solid var(--card-border);
-            border-radius: 24px; /* Slightly smaller radius */
+            border-radius: 24px;
             padding: 25px 20px;
             width: 100%;
-            
-            /* FIX: Smaller max-width to fit all phones */
             max-width: 350px; 
-            
             box-shadow: var(--shadow-card);
             position: relative;
             z-index: 10;
@@ -131,7 +129,7 @@
         .theme-toggle {
             background: var(--toggle-bg); border-radius: 50px; padding: 3px;
             display: flex; align-items: center; cursor: pointer; position: relative;
-            width: 50px; height: 26px; transition: 0.3s; /* Smaller toggle */
+            width: 50px; height: 26px; transition: 0.3s;
         }
         .toggle-icon {
             width: 20px; height: 20px; border-radius: 50%;
@@ -260,10 +258,84 @@
         }
         .reset-link:hover { background: var(--toggle-bg); color: var(--text-main); }
 
+        /* --- TOGGLE SWITCH STYLES (NEW) --- */
+        .noti-container {
+            display: flex; align-items: center; justify-content: center; gap: 10px;
+            margin-top: 15px; background: var(--input-bg);
+            padding: 8px 16px; border-radius: 20px; border: 1px solid var(--card-border);
+            width: fit-content; margin-left: auto; margin-right: auto;
+        }
+        .noti-label { font-size: 0.8rem; font-weight: 500; color: var(--text-main); }
+        
+        .switch { position: relative; display: inline-block; width: 44px; height: 24px; }
+        .switch input { opacity: 0; width: 0; height: 0; }
+        .slider {
+            position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0;
+            background-color: var(--switch-off); transition: .4s; border-radius: 34px;
+        }
+        .slider:before {
+            position: absolute; content: ""; height: 18px; width: 18px;
+            left: 3px; bottom: 3px; background-color: white;
+            transition: .4s; border-radius: 50%; box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+        }
+        input:checked + .slider { background-color: var(--success); }
+        input:checked + .slider:before { transform: translateX(20px); }
+
+        /* --- POPUP STYLES --- */
+        .popup-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: var(--popup-overlay);
+            backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);
+            z-index: 1000; display: none; align-items: center; justify-content: center;
+            opacity: 0; transition: opacity 0.3s ease;
+        }
+        .popup-overlay.active { display: flex; opacity: 1; }
+        
+        .popup-content {
+            background: var(--card-bg); border: 1px solid var(--card-border);
+            width: 90%; max-width: 320px; padding: 25px 20px;
+            border-radius: 24px; text-align: center;
+            box-shadow: var(--shadow-card);
+            transform: scale(0.8) translateY(20px);
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+        .popup-overlay.active .popup-content { transform: scale(1) translateY(0); }
+
+        .popup-icon {
+            width: 50px; height: 50px; background: var(--bg-base); border-radius: 50%;
+            margin: 0 auto 10px; display: flex; align-items: center; justify-content: center;
+            color: var(--primary); font-size: 1.2rem; box-shadow: var(--shadow-input);
+        }
+        .popup-title { font-size: 1rem; color: var(--text-main); margin-bottom: 5px; font-weight: 700; }
+        .popup-msg { font-size: 0.8rem; color: var(--text-sub); margin-bottom: 15px; }
+
+        .rate-row {
+            background: var(--input-bg); padding: 10px; border-radius: 12px;
+            margin-bottom: 8px; border: 1px solid var(--card-border);
+        }
+        .rate-label {
+            display: flex; align-items: center; justify-content: center; gap: 5px;
+            font-size: 0.8rem; font-weight: 600; color: var(--text-main); margin-bottom: 4px;
+        }
+        .rate-label img { width: 16px; border-radius: 4px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+        
+        .rate-vals { display: flex; align-items: center; justify-content: center; gap: 8px; font-size: 0.9rem; }
+        .highlight-old { text-decoration: line-through; opacity: 0.5; font-size: 0.85rem; color: var(--text-sub); }
+        .highlight-new { color: var(--success); font-weight: 700; font-family: 'Prompt'; }
+
+        .popup-close {
+            background: linear-gradient(135deg, var(--primary), #4338ca);
+            color: white; border: none; padding: 10px 30px; border-radius: 50px;
+            font-family: 'Prompt'; font-weight: 600; cursor: pointer;
+            box-shadow: 0 4px 15px var(--primary-glow); transition: 0.3s;
+            font-size: 0.85rem; margin-top: 10px;
+        }
+        .popup-close:hover { transform: translateY(-2px); box-shadow: 0 8px 20px var(--primary-glow); }
+        .popup-close:active { transform: scale(0.95); }
+
         .footer-credit { margin-top: 15px; font-size: 0.65rem; color: var(--text-sub); opacity: 0.6; line-height: 1.4; }
         .footer-credit strong { font-weight: 600; }
 
-        @keyframes pulse { 0% { opacity: 1; } 50% { opacity: 0.4; } 100% { opacity: 1; } }
     </style>
 </head>
 <body data-theme="light">
@@ -272,6 +344,34 @@
         <div class="orb orb-1"></div>
         <div class="orb orb-2"></div>
         <div class="orb orb-3"></div>
+    </div>
+
+    <div id="rate-popup" class="popup-overlay">
+        <div class="popup-content">
+            <div class="popup-icon"><i class="fas fa-chart-line"></i></div>
+            <h3 class="popup-title">อัปเดตอัตราแลกเปลี่ยน</h3>
+            <p class="popup-msg">ค่าเงินมีการเปลี่ยนแปลงจากเดิม</p>
+            
+            <div class="rate-row">
+                <div class="rate-label"><img src="https://flagcdn.com/w20/th.png"> THB &rarr; <img src="https://flagcdn.com/w20/es.png"> EUR</div>
+                <div class="rate-vals">
+                    <span id="popup-old-thb" class="highlight-old">0.0000</span>
+                    <i class="fas fa-arrow-right" style="font-size:0.7rem; color:var(--text-sub); opacity:0.6;"></i>
+                    <span id="popup-new-thb" class="highlight-new">0.0000</span>
+                </div>
+            </div>
+
+            <div class="rate-row">
+                <div class="rate-label"><img src="https://flagcdn.com/w20/es.png"> EUR &rarr; <img src="https://flagcdn.com/w20/th.png"> THB</div>
+                <div class="rate-vals">
+                    <span id="popup-old-eur" class="highlight-old">0.0000</span>
+                    <i class="fas fa-arrow-right" style="font-size:0.7rem; color:var(--text-sub); opacity:0.6;"></i>
+                    <span id="popup-new-eur" class="highlight-new">0.0000</span>
+                </div>
+            </div>
+
+            <button class="popup-close" onclick="closePopup()">ตกลง</button>
+        </div>
     </div>
 
     <div class="container">
@@ -391,8 +491,17 @@
             <div class="rate-text">Rate: <span id="exchange-rate">Checking...</span></div>
             <div class="reset-link" onclick="resetAll()"><i class="fas fa-redo"></i> ล้างค่าเริ่มต้น</div>
             
+            <div class="noti-container">
+                <span class="noti-label">แจ้งเตือนเมื่อค่าเงินเปลี่ยน</span>
+                <label class="switch">
+                    <input type="checkbox" id="noti-toggle" onchange="toggleNotification(this)">
+                    <span class="slider round"></span>
+                </label>
+            </div>
+
             <div class="footer-credit">
                 Design & Develop by <strong>Yutthapong R.</strong><br>
+                Version 1.0.0<br>
                 Copyright &copy; 2025 All Rights Reserved.
             </div>
         </div>
@@ -424,6 +533,7 @@
         const amountTwo = document.getElementById('amount-two');
         const swapBtn = document.getElementById('swap');
         let currencyOne = 'THB';
+        let isNotiEnabled = false;
 
         async function initData() {
             await fetchRate();
@@ -432,23 +542,94 @@
             setInterval(fetchWeather, 300000);
             setInterval(updateClocks, 1000);
             updateClocks();
+            checkNotificationStatus();
         }
 
         async function fetchRate() {
             try {
                 const res = await fetch(`https://api.exchangerate-api.com/v4/latest/THB?t=${Date.now()}`);
                 const data = await res.json();
-                rateTHB_EUR = data.rates['EUR'];
+                
+                const newRate = data.rates['EUR'];
+                const savedRate = localStorage.getItem('savedRate');
+                
+                if (savedRate && parseFloat(savedRate) !== newRate) {
+                    const oldR = parseFloat(savedRate);
+                    const oldInv = 1 / oldR;
+                    const newInv = 1 / newRate;
+                    
+                    showRatePopup(oldR, newRate, oldInv, newInv);
+                    sendNotification(oldR, newRate);
+                }
+                
+                localStorage.setItem('savedRate', newRate);
+
+                rateTHB_EUR = newRate;
                 rateEUR_THB = 1 / rateTHB_EUR;
                 
                 updateConverterUI();
                 updateDiscountUI();
                 document.getElementById('exchange-rate').innerText = `1 THB = ${rateTHB_EUR.toFixed(4)} EUR`;
-                
-                const now = new Date();
-                document.getElementById('update-time').innerText = now.toLocaleTimeString('th-TH', {hour:'2-digit', minute:'2-digit', second:'2-digit'});
 
             } catch(e) { console.error("Rate Error", e); }
+        }
+
+        function showRatePopup(oldTHB, newTHB, oldEUR, newEUR) {
+            document.getElementById('popup-old-thb').innerText = oldTHB.toFixed(4);
+            document.getElementById('popup-new-thb').innerText = newTHB.toFixed(4);
+
+            document.getElementById('popup-old-eur').innerText = oldEUR.toFixed(4);
+            document.getElementById('popup-new-eur').innerText = newEUR.toFixed(4);
+
+            document.getElementById('rate-popup').classList.add('active');
+        }
+
+        function closePopup() {
+            document.getElementById('rate-popup').classList.remove('active');
+        }
+
+        // --- NEW NOTIFICATION LOGIC ---
+        function toggleNotification(checkbox) {
+            if (checkbox.checked) {
+                if (!("Notification" in window)) {
+                    alert("Browser ของคุณไม่รองรับการแจ้งเตือน");
+                    checkbox.checked = false;
+                    return;
+                }
+                Notification.requestPermission().then(permission => {
+                    if (permission === "granted") {
+                        isNotiEnabled = true;
+                        new Notification("เปิดการแจ้งเตือนแล้ว", { 
+                            body: "คุณจะได้รับแจ้งเตือนเมื่อค่าเงินมีการเปลี่ยนแปลง",
+                            icon: "https://flagcdn.com/w40/th.png"
+                        });
+                    } else {
+                        checkbox.checked = false;
+                        isNotiEnabled = false;
+                        alert("กรุณากดอนุญาตการแจ้งเตือนใน Browser");
+                    }
+                });
+            } else {
+                isNotiEnabled = false;
+            }
+        }
+
+        function checkNotificationStatus() {
+            const toggle = document.getElementById('noti-toggle');
+            if (Notification.permission === "granted") {
+                toggle.checked = true;
+                isNotiEnabled = true;
+            } else {
+                toggle.checked = false;
+                isNotiEnabled = false;
+            }
+        }
+
+        function sendNotification(oldRate, newRate) {
+            if (isNotiEnabled && Notification.permission === "granted") {
+                const msg = `THB->EUR เปลี่ยนจาก ${oldRate.toFixed(4)} เป็น ${newRate.toFixed(4)}`;
+                new Notification("ค่าเงินเปลี่ยนแปลง!", { body: msg, icon: "https://flagcdn.com/w40/th.png" });
+            }
         }
 
         async function fetchWeather() {
@@ -495,6 +676,8 @@
             
             document.getElementById('time-th').innerText = timeTH;
             document.getElementById('time-es').innerText = timeES;
+
+            document.getElementById('update-time').innerText = now.toLocaleTimeString('th-TH', {hour:'2-digit', minute:'2-digit', second:'2-digit'});
 
             updateDayNightStatus('th', timeTH);
             updateDayNightStatus('es', timeES);
