@@ -3,20 +3,20 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Converter Exchange Rates: THB-EUR</title>
+    <title>Travel Wallet: THB-EUR</title>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600;700&display=swap');
 
         /* --- THEME VARIABLES --- */
         :root {
-            /* Light Mode Palette */
-            --bg-base: #f8fafc; /* พื้นหลังหลัก */
-            --orb-1: #a78bfa;   /* ม่วงอ่อน */
-            --orb-2: #f472b6;   /* ชมพู */
-            --orb-3: #22d3ee;   /* ฟ้า */
+            /* Light Mode Animation (Pastel) */
+            --bg-base: #f8fafc;
+            --orb-1: #a78bfa;
+            --orb-2: #f472b6;
+            --orb-3: #22d3ee;
             
-            --card-bg: rgba(255, 255, 255, 0.75); /* โปร่งแสงมากขึ้นเพื่อให้เห็นพื้นหลัง */
+            --card-bg: rgba(255, 255, 255, 0.75);
             --card-border: rgba(255, 255, 255, 0.6);
             --text-main: #1e293b;
             --text-sub: #64748b;
@@ -36,9 +36,9 @@
         [data-theme="dark"] {
             /* Dark Mode Palette (Neon/Deep) */
             --bg-base: #0f172a;
-            --orb-1: #4338ca;   /* น้ำเงินเข้ม */
-            --orb-2: #7c3aed;   /* ม่วงเข้ม */
-            --orb-3: #0ea5e9;   /* ฟ้าเข้ม */
+            --orb-1: #4338ca;
+            --orb-2: #7c3aed;
+            --orb-3: #0ea5e9;
 
             --card-bg: rgba(15, 23, 42, 0.65);
             --card-border: rgba(255, 255, 255, 0.1);
@@ -61,16 +61,22 @@
             font-family: 'Prompt', sans-serif;
             background-color: var(--bg-base);
             min-height: 100vh;
+            /* FIX: Changed from flex center to allow scrolling */
             display: flex;
+            flex-direction: column;
             align-items: center;
-            justify-content: center;
-            padding: 10px;
-            overflow: hidden; /* Prevent scrollbars from floating orbs */
+            justify-content: flex-start; /* Start from top */
+            padding: 40px 20px; /* Add vertical padding for scroll space */
+            
+            /* FIX: Allow vertical scroll, hide horizontal */
+            overflow-x: hidden; 
+            overflow-y: auto; 
+            
             position: relative;
             transition: background-color 0.5s ease;
         }
 
-        /* --- BACKGROUND ANIMATION (MESH GRADIENT) --- */
+        /* --- BACKGROUND ANIMATION --- */
         .background-blobs {
             position: fixed;
             top: 0; left: 0; width: 100%; height: 100%;
@@ -82,7 +88,7 @@
         .orb {
             position: absolute;
             border-radius: 50%;
-            filter: blur(80px); /* ความฟุ้ง */
+            filter: blur(80px);
             opacity: 0.6;
             animation: float 10s infinite ease-in-out alternate;
         }
@@ -123,10 +129,10 @@
             100% { transform: translate(-50%, -50%) scale(1) rotate(0deg); }
         }
 
-        /* --- CONTAINER (GLASS) --- */
+        /* --- CONTAINER --- */
         .container {
             background: var(--card-bg);
-            backdrop-filter: blur(30px); /* เบลอฉากหลังให้เห็นสีฟุ้งๆ */
+            backdrop-filter: blur(30px);
             -webkit-backdrop-filter: blur(30px);
             border: 1px solid var(--card-border);
             border-radius: 32px;
@@ -137,6 +143,10 @@
             position: relative;
             z-index: 10;
             transition: all 0.3s ease;
+            
+            /* FIX: Remove overflow hidden so content isn't clipped */
+            overflow: visible; 
+            margin-bottom: 20px;
         }
 
         /* --- Header --- */
@@ -300,7 +310,7 @@
     <div class="container">
         <div class="header">
             <div class="app-title">
-                Converter Exchange Rates
+                Travel Wallet
                 <span>THB &harr; EUR Converter</span>
             </div>
             <div class="theme-toggle" id="theme-btn">
