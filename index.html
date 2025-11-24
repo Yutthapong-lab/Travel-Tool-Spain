@@ -258,7 +258,7 @@
         }
         .reset-link:hover { background: var(--toggle-bg); color: var(--text-main); }
 
-        /* --- TOGGLE SWITCH STYLES (NEW) --- */
+        /* --- TOGGLE SWITCH STYLES --- */
         .noti-container {
             display: flex; align-items: center; justify-content: center; gap: 10px;
             margin-top: 15px; background: var(--input-bg);
@@ -569,6 +569,7 @@
                 
                 updateConverterUI();
                 updateDiscountUI();
+                // แสดงทศนิยม 4 ตำแหน่งใน Rate Text เพื่อความแม่นยำ
                 document.getElementById('exchange-rate').innerText = `1 THB = ${rateTHB_EUR.toFixed(4)} EUR`;
 
             } catch(e) { console.error("Rate Error", e); }
@@ -714,10 +715,14 @@
             const el = document.getElementById('exchange-rate');
             if(currencyOne === 'THB') {
                 el.innerText = `1 THB = ${rateTHB_EUR.toFixed(4)} EUR`;
-                if(amountOne.value) amountTwo.value = (amountOne.value * rateTHB_EUR).toFixed(2);
+                
+                // --- UPDATE: แสดงผลลัพธ์การแปลงเป็น 4 ตำแหน่ง ---
+                if(amountOne.value) amountTwo.value = (amountOne.value * rateTHB_EUR).toFixed(4);
             } else {
                 el.innerText = `1 EUR = ${rateEUR_THB.toFixed(4)} THB`;
-                if(amountOne.value) amountTwo.value = (amountOne.value * rateEUR_THB).toFixed(2);
+                
+                // --- UPDATE: แสดงผลลัพธ์การแปลงเป็น 4 ตำแหน่ง ---
+                if(amountOne.value) amountTwo.value = (amountOne.value * rateEUR_THB).toFixed(4);
             }
         }
 
@@ -725,10 +730,14 @@
             const r = currencyOne === 'THB' ? rateTHB_EUR : rateEUR_THB;
             if(source === 'one') {
                 if(!amountOne.value) { amountTwo.value = ''; return; }
-                amountTwo.value = (amountOne.value * r).toFixed(2);
+                
+                // --- UPDATE: แก้ให้แสดง 4 ตำแหน่งในช่อง Input ---
+                amountTwo.value = (amountOne.value * r).toFixed(4);
             } else {
                 if(!amountTwo.value) { amountOne.value = ''; return; }
-                amountOne.value = (amountTwo.value / r).toFixed(2);
+                
+                // --- UPDATE: แก้ให้แสดง 4 ตำแหน่งในช่อง Input ---
+                amountOne.value = (amountTwo.value / r).toFixed(4);
             }
         }
 
