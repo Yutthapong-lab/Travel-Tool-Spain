@@ -1,0 +1,671 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Converter Exchange Rates: THB-EUR</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600;700&display=swap');
+
+        /* --- THEME VARIABLES --- */
+        :root {
+            /* Light Mode Palette */
+            --bg-base: #f8fafc; /* พื้นหลังหลัก */
+            --orb-1: #a78bfa;   /* ม่วงอ่อน */
+            --orb-2: #f472b6;   /* ชมพู */
+            --orb-3: #22d3ee;   /* ฟ้า */
+            
+            --card-bg: rgba(255, 255, 255, 0.75); /* โปร่งแสงมากขึ้นเพื่อให้เห็นพื้นหลัง */
+            --card-border: rgba(255, 255, 255, 0.6);
+            --text-main: #1e293b;
+            --text-sub: #64748b;
+            --input-bg: rgba(255, 255, 255, 0.5);
+            --input-focus: #ffffff;
+            --primary: #4f46e5;
+            --primary-glow: rgba(79, 70, 229, 0.3);
+            --success: #10b981;
+            --warning: #f59e0b;
+            --shadow-card: 0 20px 50px -12px rgba(0,0,0,0.1);
+            --shadow-input: inset 0 2px 4px rgba(0,0,0,0.03);
+            --toggle-bg: #f1f5f9;
+            --day-color: #f59e0b;
+            --night-color: #6366f1;
+        }
+
+        [data-theme="dark"] {
+            /* Dark Mode Palette (Neon/Deep) */
+            --bg-base: #0f172a;
+            --orb-1: #4338ca;   /* น้ำเงินเข้ม */
+            --orb-2: #7c3aed;   /* ม่วงเข้ม */
+            --orb-3: #0ea5e9;   /* ฟ้าเข้ม */
+
+            --card-bg: rgba(15, 23, 42, 0.65);
+            --card-border: rgba(255, 255, 255, 0.1);
+            --text-main: #f8fafc;
+            --text-sub: #94a3b8;
+            --input-bg: rgba(30, 41, 59, 0.5);
+            --input-focus: rgba(30, 41, 59, 0.8);
+            --primary: #818cf8;
+            --primary-glow: rgba(129, 140, 248, 0.4);
+            --success: #34d399;
+            --warning: #fbbf24;
+            --shadow-card: 0 20px 50px -12px rgba(0,0,0,0.6);
+            --shadow-input: inset 0 2px 4px rgba(0,0,0,0.3);
+            --toggle-bg: #334155;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+
+        body {
+            font-family: 'Prompt', sans-serif;
+            background-color: var(--bg-base);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 10px;
+            overflow: hidden; /* Prevent scrollbars from floating orbs */
+            position: relative;
+            transition: background-color 0.5s ease;
+        }
+
+        /* --- BACKGROUND ANIMATION (MESH GRADIENT) --- */
+        .background-blobs {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            z-index: -1;
+            overflow: hidden;
+            pointer-events: none;
+        }
+
+        .orb {
+            position: absolute;
+            border-radius: 50%;
+            filter: blur(80px); /* ความฟุ้ง */
+            opacity: 0.6;
+            animation: float 10s infinite ease-in-out alternate;
+        }
+
+        .orb-1 {
+            background: var(--orb-1);
+            width: 60vw; height: 60vw;
+            top: -10%; left: -10%;
+            animation-duration: 12s;
+        }
+
+        .orb-2 {
+            background: var(--orb-2);
+            width: 50vw; height: 50vw;
+            bottom: -10%; right: -10%;
+            animation-duration: 15s;
+            animation-direction: alternate-reverse;
+        }
+
+        .orb-3 {
+            background: var(--orb-3);
+            width: 40vw; height: 40vw;
+            top: 40%; left: 40%;
+            transform: translate(-50%, -50%);
+            animation-name: floatCenter;
+            animation-duration: 18s;
+        }
+
+        @keyframes float {
+            0% { transform: translate(0, 0) scale(1); }
+            100% { transform: translate(30px, 50px) scale(1.1); }
+        }
+
+        @keyframes floatCenter {
+            0% { transform: translate(-50%, -50%) scale(1) rotate(0deg); }
+            33% { transform: translate(-40%, -60%) scale(1.2) rotate(45deg); }
+            66% { transform: translate(-60%, -40%) scale(0.9) rotate(-45deg); }
+            100% { transform: translate(-50%, -50%) scale(1) rotate(0deg); }
+        }
+
+        /* --- CONTAINER (GLASS) --- */
+        .container {
+            background: var(--card-bg);
+            backdrop-filter: blur(30px); /* เบลอฉากหลังให้เห็นสีฟุ้งๆ */
+            -webkit-backdrop-filter: blur(30px);
+            border: 1px solid var(--card-border);
+            border-radius: 32px;
+            padding: 25px 20px;
+            width: 100%;
+            max-width: 380px; 
+            box-shadow: var(--shadow-card);
+            position: relative;
+            z-index: 10;
+            transition: all 0.3s ease;
+        }
+
+        /* --- Header --- */
+        .header {
+            display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;
+        }
+        .app-title {
+            font-size: 1.3rem; font-weight: 700; color: var(--text-main);
+            display: flex; flex-direction: column; line-height: 1.1; letter-spacing: -0.5px;
+        }
+        .app-title span { font-size: 0.75rem; color: var(--text-sub); font-weight: 400; margin-top: 2px; letter-spacing: 0; }
+        
+        .theme-toggle {
+            background: var(--toggle-bg); border-radius: 50px; padding: 3px;
+            display: flex; align-items: center; cursor: pointer; position: relative;
+            width: 54px; height: 28px; transition: 0.3s;
+        }
+        .toggle-icon {
+            width: 22px; height: 22px; border-radius: 50%;
+            background: #fff; box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+            display: flex; align-items: center; justify-content: center;
+            color: #f59e0b; font-size: 0.8rem;
+            position: absolute; left: 3px; transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+        [data-theme="dark"] .toggle-icon { transform: translateX(26px); color: #6366f1; background: #1e293b; }
+        
+        /* --- Dashboard --- */
+        .dashboard-container { margin-bottom: 20px; }
+        .dashboard { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+        
+        .dash-card {
+            background: var(--input-bg); border-radius: 20px; padding: 12px 8px;
+            text-align: center; border: 1px solid var(--card-border);
+            transition: 0.3s; display: flex; flex-direction: column; align-items: center;
+        }
+        .dash-card:hover { transform: translateY(-3px); border-color: var(--primary); box-shadow: 0 10px 20px -10px var(--primary-glow); }
+        
+        .dash-header { display: flex; align-items: center; gap: 6px; margin-bottom: 4px; opacity: 0.9; }
+        .dash-flag { width: 18px; height: 18px; border-radius: 50%; object-fit: cover; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
+        .dash-country { font-size: 0.8rem; font-weight: 600; color: var(--text-sub); }
+
+        .dash-time { font-size: 1.5rem; font-weight: 700; color: var(--text-main); line-height: 1; margin: 2px 0; font-variant-numeric: tabular-nums; letter-spacing: -0.5px; }
+        
+        /* Time Difference Badge */
+        .time-diff-badge {
+            font-size: 0.65rem; font-weight: 600; padding: 2px 8px; border-radius: 10px;
+            margin-bottom: 6px; display: inline-block; white-space: nowrap;
+        }
+        .diff-faster { color: var(--success); background: rgba(16, 185, 129, 0.15); }
+        .diff-slower { color: var(--warning); background: rgba(245, 158, 11, 0.15); }
+
+        .dash-info-group {
+            display: flex; flex-direction: row; justify-content: center; align-items: center; gap: 8px; width: 100%; border-top: 1px solid rgba(0,0,0,0.05); padding-top: 6px;
+        }
+        
+        .dn-status { font-size: 0.7rem; font-weight: 600; display: flex; align-items: center; gap: 3px; }
+        .dn-day { color: var(--day-color); }
+        .dn-night { color: var(--night-color); }
+
+        .dash-weather-row { display: flex; align-items: center; gap: 3px; font-size: 0.75rem; color: var(--text-sub); }
+        .w-icon-small { width: 16px; height: 16px; vertical-align: middle; }
+
+        /* --- Tabs --- */
+        .tabs {
+            display: flex; background: var(--toggle-bg); border-radius: 16px; padding: 4px; margin-bottom: 20px;
+        }
+        .tab-btn {
+            flex: 1; border: none; background: transparent; padding: 10px;
+            border-radius: 12px; font-family: 'Prompt'; font-weight: 600; color: var(--text-sub);
+            cursor: pointer; transition: 0.3s; font-size: 0.85rem;
+        }
+        .tab-btn.active { background: var(--card-bg); color: var(--primary); box-shadow: 0 4px 10px rgba(0,0,0,0.08); }
+        
+        .tab-content { display: none; animation: slideUp 0.4s cubic-bezier(0.16, 1, 0.3, 1); }
+        .tab-content.active { display: block; }
+        @keyframes slideUp { from { opacity: 0; transform: translateY(15px); } to { opacity: 1; transform: translateY(0); } }
+
+        /* --- Inputs --- */
+        .input-wrapper { margin-bottom: 15px; position: relative; }
+        .input-label { font-size: 0.85rem; color: var(--text-sub); margin-bottom: 6px; margin-left: 8px; display: block; font-weight: 500; }
+        .input-box {
+            display: flex; align-items: center; background: var(--input-bg);
+            border-radius: 18px; padding: 6px 15px; border: 2px solid transparent;
+            box-shadow: var(--shadow-input); transition: 0.3s;
+        }
+        .input-box:focus-within {
+            background: var(--input-focus); border-color: var(--primary);
+            box-shadow: 0 0 0 4px var(--primary-glow);
+        }
+        input {
+            width: 100%; border: none; background: transparent;
+            font-size: 1.6rem; font-weight: 600; color: var(--text-main);
+            padding: 10px 0; outline: none; font-family: 'Prompt'; letter-spacing: -0.5px;
+        }
+        input::placeholder { 
+            color: var(--text-sub); opacity: 0.5; font-weight: 400;
+            font-size: 1.1rem; transform: translateY(-1px);
+        }
+        .currency-tag {
+            display: flex; align-items: center; gap: 6px; font-weight: 700;
+            color: var(--text-main); font-size: 0.9rem; padding-left: 10px;
+            border-left: 2px solid var(--card-border); opacity: 0.9;
+        }
+
+        /* --- Swap Button --- */
+        .swap-area { position: relative; height: 16px; display: flex; justify-content: center; z-index: 10; margin: -8px 0 15px; }
+        .swap-btn {
+            width: 42px; height: 42px; border-radius: 50%; background: var(--primary);
+            border: 4px solid var(--card-bg); color: white; display: flex; align-items: center; justify-content: center;
+            cursor: pointer; box-shadow: 0 6px 15px var(--primary-glow); transition: 0.3s; font-size: 1rem;
+        }
+        .swap-btn:active { transform: scale(0.9); }
+        .swap-btn:hover { transform: rotate(180deg) scale(1.05); }
+
+        /* --- Discount UI --- */
+        .disc-tools { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin: 20px 0; }
+        .disc-btn {
+            background: var(--input-bg); border: 1px solid var(--card-border); color: var(--text-sub);
+            padding: 8px; border-radius: 12px; font-family: 'Prompt'; font-weight: 600; cursor: pointer; transition: 0.2s; font-size: 0.8rem;
+        }
+        .disc-btn:hover { background: var(--primary); color: white; border-color: var(--primary); }
+        .disc-btn.active { background: var(--primary); color: white; border-color: var(--primary); box-shadow: 0 4px 12px var(--primary-glow); }
+        .disc-manual { grid-column: span 4; display: flex; align-items: center; gap: 10px; margin-top: 4px; }
+        .disc-manual input { font-size: 1.1rem; padding: 10px; text-align: center; border-radius: 14px; background: var(--input-bg); border: 1px solid var(--card-border); }
+
+        .result-card {
+            background: linear-gradient(135deg, var(--success), #059669);
+            border-radius: 24px; padding: 20px; color: white; text-align: center;
+            box-shadow: 0 10px 30px -5px rgba(16, 185, 129, 0.4); margin-top: 15px;
+        }
+        .res-label { font-size: 0.85rem; opacity: 0.95; margin-bottom: 5px; font-weight: 500; }
+        .res-big { font-size: 2.2rem; font-weight: 700; line-height: 1; letter-spacing: -1px; margin-bottom: 4px;}
+        .res-small { font-size: 0.9rem; opacity: 0.9; margin-top: 6px; background: rgba(255,255,255,0.25); display: inline-block; padding: 4px 12px; border-radius: 20px; font-weight: 500; }
+
+        .footer { margin-top: 25px; text-align: center; border-top: 1px solid var(--card-border); padding-top: 15px; }
+        .live-status { font-size: 0.75rem; color: var(--success); font-weight: 600; display: flex; align-items: center; justify-content: center; gap: 6px; margin-bottom: 6px; }
+        .live-dot { width: 6px; height: 6px; background: var(--success); border-radius: 50%; animation: pulse 1.5s infinite; }
+        .rate-text { font-size: 0.75rem; color: var(--text-sub); }
+        
+        .reset-link {
+            display: inline-flex; align-items: center; gap: 6px; margin-top: 12px;
+            color: var(--text-sub); text-decoration: none; font-size: 0.85rem; font-weight: 600;
+            cursor: pointer; padding: 8px 18px; border-radius: 20px; transition: 0.2s;
+        }
+        .reset-link:hover { background: var(--toggle-bg); color: var(--text-main); }
+
+        .footer-credit { margin-top: 20px; font-size: 0.7rem; color: var(--text-sub); opacity: 0.6; line-height: 1.5; }
+        .footer-credit strong { font-weight: 600; }
+
+        @keyframes pulse { 0% { opacity: 1; } 50% { opacity: 0.4; } 100% { opacity: 1; } }
+    </style>
+</head>
+<body data-theme="light">
+
+    <div class="background-blobs">
+        <div class="orb orb-1"></div>
+        <div class="orb orb-2"></div>
+        <div class="orb orb-3"></div>
+    </div>
+
+    <div class="container">
+        <div class="header">
+            <div class="app-title">
+                Converter Exchange Rates
+                <span>THB &harr; EUR Converter</span>
+            </div>
+            <div class="theme-toggle" id="theme-btn">
+                <div class="toggle-icon"><i class="fas fa-sun"></i></div>
+            </div>
+        </div>
+
+        <div class="dashboard-container">
+            <div class="dashboard">
+                <div class="dash-card">
+                    <div class="dash-header">
+                        <img src="https://flagcdn.com/w40/th.png" class="dash-flag" alt="Thai">
+                        <span class="dash-country">ไทย</span>
+                    </div>
+                    <div class="dash-time" id="time-th">--:--</div>
+                    <div class="time-diff-badge diff-faster" id="diff-th">คำนวณ...</div>
+                    
+                    <div class="dash-info-group">
+                        <div class="dn-status" id="dn-th">
+                            <i class="fas fa-spinner"></i> --
+                        </div>
+                        <div class="dash-weather-row">
+                            <img id="icon-th" src="" class="w-icon-small" style="display:none;">
+                            <span id="temp-th">--°C</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="dash-card">
+                    <div class="dash-header">
+                        <img src="https://flagcdn.com/w40/es.png" class="dash-flag" alt="Spain">
+                        <span class="dash-country">สเปน</span>
+                    </div>
+                    <div class="dash-time" id="time-es">--:--</div>
+                    <div class="time-diff-badge diff-slower" id="diff-es">คำนวณ...</div>
+                    
+                    <div class="dash-info-group">
+                        <div class="dn-status" id="dn-es">
+                            <i class="fas fa-spinner"></i> --
+                        </div>
+                        <div class="dash-weather-row">
+                            <img id="icon-es" src="" class="w-icon-small" style="display:none;">
+                            <span id="temp-es">--°C</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="tabs">
+            <button class="tab-btn active" onclick="switchTab('converter')">แปลงค่าเงิน</button>
+            <button class="tab-btn" onclick="switchTab('discount')">คำนวณส่วนลด</button>
+        </div>
+
+        <div id="converter" class="tab-content active">
+            <div class="input-wrapper">
+                <label class="input-label">จำนวนเงินบาท (THB)</label>
+                <div class="input-box">
+                    <input type="number" id="amount-one" placeholder="0">
+                    <div class="currency-tag">THB</div>
+                </div>
+            </div>
+
+            <div class="swap-area">
+                <div class="swap-btn" id="swap"><i class="fas fa-exchange-alt"></i></div>
+            </div>
+
+            <div class="input-wrapper">
+                <label class="input-label">จำนวนเงินยูโร (EUR)</label>
+                <div class="input-box">
+                    <input type="number" id="amount-two" placeholder="0">
+                    <div class="currency-tag">EUR</div>
+                </div>
+            </div>
+        </div>
+
+        <div id="discount" class="tab-content">
+            <div class="input-wrapper">
+                <label class="input-label">ราคาป้าย (เลือกสกุลเงินได้)</label>
+                <div class="input-box" style="padding-right: 5px;">
+                    <input type="number" id="disc-price" placeholder="ระบุราคา">
+                    <select id="disc-currency-select" style="border:none; background:var(--toggle-bg); padding:8px; border-radius:12px; font-family:'Prompt'; font-weight:600; color:var(--text-main); font-size:0.9rem; outline:none;">
+                        <option value="EUR">EUR</option>
+                        <option value="THB">THB</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="disc-tools">
+                <button class="disc-btn" data-val="10">10%</button>
+                <button class="disc-btn" data-val="20">20%</button>
+                <button class="disc-btn" data-val="30">30%</button>
+                <button class="disc-btn" data-val="50">50%</button>
+                <div class="disc-manual">
+                    <span style="font-size:0.85rem; color:var(--text-sub); white-space:nowrap;">หรือกรอก %:</span>
+                    <input type="number" id="disc-percent-manual" placeholder="0" style="width:100%;">
+                </div>
+            </div>
+
+            <div class="result-card">
+                <div class="res-label">ต้องจ่ายจริง (Net Price)</div>
+                <div class="res-big"><span id="res-final">0.00</span> <span id="res-unit" style="font-size:1.1rem">EUR</span></div>
+                <div class="res-small">≈ <span id="res-converted">0.00</span> <span id="res-conv-unit">THB</span></div>
+            </div>
+        </div>
+
+        <div class="footer">
+            <div class="live-status">
+                <div class="live-dot"></div> Real-time Updates (<span id="update-time">--:--:--</span>)
+            </div>
+            <div class="rate-text">Rate: <span id="exchange-rate">Checking...</span></div>
+            <div class="reset-link" onclick="resetAll()"><i class="fas fa-redo"></i> ล้างค่าเริ่มต้น</div>
+            
+            <div class="footer-credit">
+                Design & Develop by <strong>Yutthapong R.</strong><br>
+                Copyright &copy; 2025 All Rights Reserved.
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const themeBtn = document.getElementById('theme-btn');
+        const icon = themeBtn.querySelector('i');
+        const body = document.body;
+
+        const savedTheme = 'light';
+        body.setAttribute('data-theme', savedTheme);
+        updateIcon(savedTheme);
+
+        themeBtn.addEventListener('click', () => {
+            const current = body.getAttribute('data-theme');
+            const newTheme = current === 'light' ? 'dark' : 'light';
+            body.setAttribute('data-theme', newTheme);
+            updateIcon(newTheme);
+        });
+
+        function updateIcon(theme) {
+            icon.className = theme === 'light' ? 'fas fa-sun' : 'fas fa-moon';
+        }
+
+        let rateTHB_EUR = 0; 
+        let rateEUR_THB = 0;
+        const amountOne = document.getElementById('amount-one');
+        const amountTwo = document.getElementById('amount-two');
+        const swapBtn = document.getElementById('swap');
+        let currencyOne = 'THB';
+
+        async function initData() {
+            await fetchRate();
+            fetchWeather();
+            setInterval(fetchRate, 60000);
+            setInterval(fetchWeather, 300000);
+            setInterval(updateClocks, 1000);
+            updateClocks();
+        }
+
+        async function fetchRate() {
+            try {
+                const res = await fetch(`https://api.exchangerate-api.com/v4/latest/THB?t=${Date.now()}`);
+                const data = await res.json();
+                rateTHB_EUR = data.rates['EUR'];
+                rateEUR_THB = 1 / rateTHB_EUR;
+                
+                updateConverterUI();
+                updateDiscountUI();
+                document.getElementById('exchange-rate').innerText = `1 THB = ${rateTHB_EUR.toFixed(4)} EUR`;
+                
+                const now = new Date();
+                document.getElementById('update-time').innerText = now.toLocaleTimeString('th-TH', {hour:'2-digit', minute:'2-digit', second:'2-digit'});
+
+            } catch(e) { console.error("Rate Error", e); }
+        }
+
+        async function fetchWeather() {
+            try {
+                const h = new Date().getHours();
+                const isDay = h >= 6 && h <= 18;
+
+                // TH
+                const r1 = await fetch(`https://api.open-meteo.com/v1/forecast?latitude=13.75&longitude=100.50&current_weather=true&t=${Date.now()}`);
+                const d1 = await r1.json();
+                updateWeatherCard('th', d1.current_weather, isDay);
+                
+                // ES (Madrid)
+                const r2 = await fetch(`https://api.open-meteo.com/v1/forecast?latitude=40.41&longitude=-3.70&current_weather=true&t=${Date.now()}`);
+                const d2 = await r2.json();
+                updateWeatherCard('es', d2.current_weather, isDay);
+            } catch(e) {}
+        }
+
+        function updateWeatherCard(code, weather, isDay) {
+            document.getElementById(`temp-${code}`).innerText = `${Math.round(weather.temperature)}°C`;
+            const img = document.getElementById(`icon-${code}`);
+            const iconName = getIconName(weather.weathercode, isDay);
+            img.src = `https://basmilius.github.io/weather-icons/production/fill/all/${iconName}.svg`;
+            img.style.display = 'inline-block';
+        }
+
+        function getIconName(code, isDay) {
+            if (code === 0) return isDay ? 'clear-day' : 'clear-night';
+            if (code >= 1 && code <= 3) return isDay ? 'partly-cloudy-day' : 'partly-cloudy-night';
+            if (code >= 45 && code <= 48) return 'fog';
+            if (code >= 51 && code <= 67) return 'rain';
+            if (code >= 80 && code <= 82) return 'rain';
+            if (code >= 95 && code <= 99) return 'thunderstorms-rain';
+            return 'not-available';
+        }
+
+        function updateClocks() {
+            const now = new Date();
+            const opt = { hour:'2-digit', minute:'2-digit', second:'2-digit', hour12:false };
+            
+            const timeTH = now.toLocaleTimeString('en-GB', {...opt, timeZone:'Asia/Bangkok'});
+            const timeES = now.toLocaleTimeString('en-GB', {...opt, timeZone:'Europe/Madrid'});
+            
+            document.getElementById('time-th').innerText = timeTH;
+            document.getElementById('time-es').innerText = timeES;
+
+            updateDayNightStatus('th', timeTH);
+            updateDayNightStatus('es', timeES);
+            updateTimeDifference();
+        }
+
+        function updateDayNightStatus(code, timeStr) {
+            const hour = parseInt(timeStr.split(':')[0]);
+            const isDay = hour >= 6 && hour < 18;
+            const el = document.getElementById(`dn-${code}`);
+            
+            if(isDay) {
+                el.innerHTML = `<i class="fas fa-sun"></i> กลางวัน`;
+                el.className = 'dn-status dn-day';
+            } else {
+                el.innerHTML = `<i class="fas fa-moon"></i> กลางคืน`;
+                el.className = 'dn-status dn-night';
+            }
+        }
+
+        function updateTimeDifference() {
+            const now = new Date();
+            const dTH = new Date(now.toLocaleString('en-US', {timeZone: 'Asia/Bangkok'}));
+            const dES = new Date(now.toLocaleString('en-US', {timeZone: 'Europe/Madrid'}));
+            
+            let diff = (dTH - dES) / (1000 * 60 * 60);
+            diff = Math.round(diff); 
+
+            document.getElementById('diff-th').innerText = `เร็วกว่าสเปน ${diff} ชม.`;
+            document.getElementById('diff-es').innerText = `ช้ากว่าไทย ${diff} ชม.`;
+        }
+
+        function updateConverterUI() {
+            const el = document.getElementById('exchange-rate');
+            if(currencyOne === 'THB') {
+                el.innerText = `1 THB = ${rateTHB_EUR.toFixed(4)} EUR`;
+                if(amountOne.value) amountTwo.value = (amountOne.value * rateTHB_EUR).toFixed(2);
+            } else {
+                el.innerText = `1 EUR = ${rateEUR_THB.toFixed(4)} THB`;
+                if(amountOne.value) amountTwo.value = (amountOne.value * rateEUR_THB).toFixed(2);
+            }
+        }
+
+        function calc(source) {
+            const r = currencyOne === 'THB' ? rateTHB_EUR : rateEUR_THB;
+            if(source === 'one') {
+                if(!amountOne.value) { amountTwo.value = ''; return; }
+                amountTwo.value = (amountOne.value * r).toFixed(2);
+            } else {
+                if(!amountTwo.value) { amountOne.value = ''; return; }
+                amountOne.value = (amountTwo.value / r).toFixed(2);
+            }
+        }
+
+        function swap() {
+            currencyOne = currencyOne === 'THB' ? 'EUR' : 'THB';
+            
+            const tags = document.querySelectorAll('.currency-tag');
+            const labels = document.querySelectorAll('.input-label');
+            
+            if(currencyOne === 'THB') {
+                labels[0].innerText = "จำนวนเงินบาท (THB)"; tags[0].innerText = "THB";
+                labels[1].innerText = "จำนวนเงินยูโร (EUR)"; tags[1].innerText = "EUR";
+            } else {
+                labels[0].innerText = "จำนวนเงินยูโร (EUR)"; tags[0].innerText = "EUR";
+                labels[1].innerText = "จำนวนเงินบาท (THB)"; tags[1].innerText = "THB";
+            }
+            
+            let temp = amountOne.value; amountOne.value = amountTwo.value; amountTwo.value = temp;
+            updateConverterUI();
+        }
+
+        amountOne.addEventListener('input', () => calc('one'));
+        amountTwo.addEventListener('input', () => calc('two'));
+        swapBtn.addEventListener('click', swap);
+
+        const discPrice = document.getElementById('disc-price');
+        const discSelect = document.getElementById('disc-currency-select');
+        const discManual = document.getElementById('disc-percent-manual');
+        const discBtns = document.querySelectorAll('.disc-btn');
+        let discountPct = 0;
+
+        discBtns.forEach(btn => {
+            btn.addEventListener('click', () => {
+                discBtns.forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                discountPct = parseFloat(btn.dataset.val);
+                discManual.value = discountPct;
+                updateDiscountUI();
+            });
+        });
+
+        discManual.addEventListener('input', () => {
+            discBtns.forEach(b => b.classList.remove('active'));
+            let val = parseFloat(discManual.value);
+            if(val > 100) val = 100; if(val < 0) val = 0;
+            discountPct = isNaN(val) ? 0 : val;
+            updateDiscountUI();
+        });
+
+        discPrice.addEventListener('input', updateDiscountUI);
+        discSelect.addEventListener('change', updateDiscountUI);
+
+        function updateDiscountUI() {
+            const price = parseFloat(discPrice.value);
+            const curr = discSelect.value;
+            
+            if(!price) {
+                document.getElementById('res-final').innerText = "0.00";
+                document.getElementById('res-converted').innerText = "0.00";
+                return;
+            }
+
+            const net = price * ((100 - discountPct) / 100);
+            document.getElementById('res-final').innerText = net.toLocaleString('en-US', {minimumFractionDigits:2, maximumFractionDigits:2});
+            document.getElementById('res-unit').innerText = curr;
+
+            let conv = 0;
+            if(curr === 'EUR') {
+                conv = net * rateEUR_THB;
+                document.getElementById('res-conv-unit').innerText = 'THB';
+            } else {
+                conv = net * rateTHB_EUR;
+                document.getElementById('res-conv-unit').innerText = 'EUR';
+            }
+            document.getElementById('res-converted').innerText = conv.toLocaleString('en-US', {minimumFractionDigits:2, maximumFractionDigits:2});
+        }
+
+        function switchTab(tab) {
+            document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+            document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
+            document.getElementById(tab).classList.add('active');
+            
+            const btns = document.querySelectorAll('.tab-btn');
+            if(tab === 'converter') btns[0].classList.add('active');
+            else btns[1].classList.add('active');
+        }
+
+        function resetAll() {
+            amountOne.value = ''; amountTwo.value = '';
+            discPrice.value = ''; discManual.value = '';
+            discountPct = 0;
+            discBtns.forEach(b => b.classList.remove('active'));
+            updateDiscountUI();
+            amountOne.focus();
+        }
+
+        initData();
+    </script>
+</body>
+</html>
